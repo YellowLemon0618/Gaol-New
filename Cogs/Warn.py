@@ -139,7 +139,7 @@ class Warn(commands.Cog):
 
         return
 
-    @slash_command(name='경고조회', description="Check warning(s)", guild_ids=guild_ids)
+    @slash_command(name='경고조회', description="Check warning", guild_ids=guild_ids)
     @option('user', discord.Member, description="Enter the user")
     async def check(self, ctx: ApplicationContext, user: str):
         now = datetime.datetime.now()

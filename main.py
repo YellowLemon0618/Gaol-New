@@ -15,11 +15,11 @@ token = os.getenv("TOKEN")
 
 @bot.event
 async def on_ready():
-    print("============================")
+    print("===========================")
     print("Logged in as: ")
     print(bot.user.name)
     print(bot.user.id)
-    print("============================")
+    print("===========================")
     game = discord.Game("TEST")
     await bot.change_presence(status=discord.Status.online, activity=game)
 
