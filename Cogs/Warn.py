@@ -30,6 +30,7 @@ class Check(discord.ui.Button):
             user = interaction.guild.get_member(int(self.custom_id.split('_')[-2]))
 
             if (btn_type == "prv" and page <= 1) or (btn_type == "nxt" and page >= whole):
+                await interaction.response.defer()
                 return
 
             conn = pymysql.connect(host='localhost', user='root', password='Mysql_0618^&', db='py', charset='utf8')
@@ -43,52 +44,40 @@ class Check(discord.ui.Button):
             view = discord.ui.View(timeout=None)
 
             if btn_type == "prv":
-                bywho = interaction.guild.get_member(int(res[page - 2][2]))
+                new_page = page - 2
+            else:
+                new_page = page
+            bywho = interaction.guild.get_member(int(res[new_page][2]))
 
-                embed.title = f"{embed.title} ( {page - 1} / {len(res)} )"
-                embed.add_field(name="**By**",
-                                value=f"{bywho.mention} ( {bywho.name}#{bywho.discriminator} / {bywho.id} )",
-                                inline=False)
-                embed.add_field(name="**Why**", value=f"{res[page - 2][5]}", inline=True)
-                embed.add_field(name="**When**", value=f"{res[page - 2][3]}", inline=True)
-                embed.add_field(name=" ", value=" ", inline=True)
-                embed.add_field(name="**Count**", value=f"{res[page - 2][4]}", inline=True)
-                embed.add_field(name="**Total Warning**", value=f"{res[-1][6]}", inline=True)
-                embed.add_field(name=" ", value=" ", inline=True)
+            embed.title = f"{embed.title} ( {new_page + 1} / {len(res)} )"
+            embed.add_field(name="**By**",
+                            value=f"{bywho.mention} ( {bywho.name}#{bywho.discriminator} / {bywho.id} )",
+                            inline=False)
+            embed.add_field(name="**Why**", value=f"{res[new_page][5]}", inline=True)
+            embed.add_field(name="**When**", value=f"{res[new_page][3]}", inline=True)
+            embed.add_field(name=" ", value=" ", inline=True)
+            embed.add_field(name="**Count**", value=f"{res[new_page][4]}", inline=True)
+            embed.add_field(name="**Total Warning**", value=f"{res[-1][6]}", inline=True)
+            embed.add_field(name=" ", value=" ", inline=True)
 
-                view.add_item(Check("Previous", f"prv_{user.id}_{page - 1}/{len(res)}"))
-                view.add_item(Check("Next", f"nxt_{user.id}_{page - 1}/{len(res)}"))
-            elif btn_type == "nxt":
-                bywho = interaction.guild.get_member(int(res[page][2]))
-
-                embed.title = f"{embed.title} ( {page + 1} / {len(res)} )"
-                embed.add_field(name="**By**",
-                                value=f"{bywho.mention} ( {bywho.name}#{bywho.discriminator} / {bywho.id} )",
-                                inline=False)
-                embed.add_field(name="**Why**", value=f"{res[page][5]}", inline=True)
-                embed.add_field(name="**When**", value=f"{res[page][3]}", inline=True)
-                embed.add_field(name=" ", value=" ", inline=True)
-                embed.add_field(name="**Count**", value=f"{res[page][4]}", inline=True)
-                embed.add_field(name="**Total Warning**", value=f"{res[-1][6]}", inline=True)
-                embed.add_field(name=" ", value=" ", inline=True)
-
-                view.add_item(Check("Previous", f"prv_{user.id}_{page + 1}/{len(res)}"))
-                view.add_item(Check("Next", f"nxt_{user.id}_{page + 1}/{len(res)}"))
+            view.add_item(Check("Previous", f"prv_{user.id}_{new_page + 1}/{len(res)}"))
+            view.add_item(Check("Next", f"nxt_{user.id}_{new_page + 1}/{len(res)}"))
 
             await interaction.response.edit_message(embed=embed, view=view)
 
             conn.commit()
             conn.close()
         except:
+            await interaction.response.defer()
             print("failed")
 
 
 class Warn(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.bot.application_command(name="warn", cls=discord.SlashCommand)
 
-    @slash_command(name='경고부여', description="Give warning to user", guild_ids=guild_ids)
+    @commands.has_permissions(administrator=True)
+    @slash_command(name='warn', description="Give warning to user", guild_ids=guild_ids)
     @option('user', discord.Member, description="Enter the user")
     @option('count', float, description="Enter the number how much warning to give")
     @option('reason', str, description="Enter the reason")
@@ -139,7 +128,8 @@ class Warn(commands.Cog):
 
         return
 
-    @slash_command(name='경고조회', description="Check warning", guild_ids=guild_ids)
+    @commands.has_permissions(administrator=True)
+    @slash_command(name='checkwarning', description="Check warning", guild_ids=guild_ids)
     @option('user', discord.Member, description="Enter the user")
     async def check(self, ctx: ApplicationContext, user: str):
         now = datetime.datetime.now()
@@ -156,7 +146,7 @@ class Warn(commands.Cog):
             cur.execute(sql)
             res = cur.fetchall()
 
-            embed = discord.Embed(title=f"test {user.name}#{user.discriminator} 's Warning List", color=0xFF0000)
+            embed = discord.Embed(title=f"{user.name}#{user.discriminator} 's Warning List", color=0xFF0000)
             if not res:
                 embed.add_field(name="**This user has no warning history.**", value="** **", inline=False)
                 view = None
