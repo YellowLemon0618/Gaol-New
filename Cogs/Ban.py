@@ -9,8 +9,11 @@ import datetime
 import random
 from math import *
 import os
+from dotenv import load_dotenv
 
 guild_ids = [827445316218257408, 891315672418750525]
+load_dotenv()
+db_pw = os.getenv("DB_PW")
 
 
 # await interaction.response.defer()
@@ -34,6 +37,7 @@ class Check(discord.ui.Button):
                 await user.ban(reason=interaction.message.embeds[0].fields[2].name)
 
             await interaction.response.defer()
+
         except:
             await interaction.response.defer()
             print("failed")

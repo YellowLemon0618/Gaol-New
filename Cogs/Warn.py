@@ -9,8 +9,11 @@ import datetime
 import random
 from math import *
 import os
+from dotenv import load_dotenv
 
 guild_ids = [827445316218257408, 891315672418750525]
+load_dotenv()
+db_pw = os.getenv("DB_PW")
 
 
 # await interaction.response.defer()
@@ -33,7 +36,7 @@ class Check(discord.ui.Button):
                 await interaction.response.defer()
                 return
 
-            conn = pymysql.connect(host='localhost', user='root', password='Mysql_0618^&', db='py', charset='utf8')
+            conn = pymysql.connect(host='localhost', user='root', password=db_pw, db='py', charset='utf8')
             cur = conn.cursor()
 
             sql = f"SELECT * FROM `warning` WHERE user = {user.id}"
@@ -85,7 +88,7 @@ class Warn(commands.Cog):
         now = datetime.datetime.now()
 
         try:
-            conn = pymysql.connect(host='localhost', user='root', password='Mysql_0618^&', db='py', charset='utf8')
+            conn = pymysql.connect(host='localhost', user='root', password=db_pw, db='py', charset='utf8')
             cur = conn.cursor()
 
             sql = f"SELECT count(*) FROM `warning`;"
@@ -129,13 +132,15 @@ class Warn(commands.Cog):
         return
 
     @commands.has_permissions(administrator=True)
-    @slash_command(name='checkwarning', description="Check warning", guild_ids=guild_ids)
+    @slash_command(name='check_warning', description="Check warning", guild_ids=guild_ids)
     @option('user', discord.Member, description="Enter the user")
     async def check(self, ctx: ApplicationContext, user: str):
         now = datetime.datetime.now()
 
         try:
-            conn = pymysql.connect(host='localhost', user='root', password='Mysql_0618^&', db='py', charset='utf8')
+            # if user != ctx.author and
+
+            conn = pymysql.connect(host='localhost', user='root', password=db_pw, db='py', charset='utf8')
             cur = conn.cursor()
 
             sql = f"SELECT count(*) FROM `warning`;"
