@@ -57,7 +57,7 @@ class Kick(commands.Cog):
             embed = discord.Embed(title="정말로 해당 유저를 킥 하겠습니까?", color=0xFF0000)
             embed.add_field(name=" ", value=" ")
             embed.add_field(name=f"**{user.name}#{user.discriminator} / {user.id}**",
-                            value="킥 하려는 유저가 맞는지 확인 해 주세요.", inline=False)
+                            value="킥 하려는 유저가 맞는지 확인 해주세요.", inline=False)
             embed.add_field(name=f"Reason", value=f"{reason}", inline=False)
             view = discord.ui.View(timeout=None)
             view.add_item(Check("아니오", f"No", color=discord.ButtonStyle.danger))
