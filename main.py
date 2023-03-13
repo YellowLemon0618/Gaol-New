@@ -31,7 +31,14 @@ for filename in os.listdir("Cogs"):
 
 @bot.event
 async def on_command_error(ctx, error):
-    if isinstance(error, commands.CommandNotFound) or isinstance(error, commands.MissingPermissions):
+    if isinstance(error, commands.CommandNotFound):
+        return
+    elif isinstance(error, commands.MissingPermissions):
+        embed = discord.Embed(title="Missing Permission",
+                              description="봇에게 해당 명령을 실행할 권한이 없습니다.",
+                              color=0xFF0000)
+        await ctx.respond(embed=embed)
+    elif isinstance(error, commands.CommandError):
         return
 
 
