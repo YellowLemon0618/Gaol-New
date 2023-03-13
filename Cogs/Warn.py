@@ -98,6 +98,7 @@ class Warn(commands.Cog):
             sql = f"select * from `warning` where id in (select max(id) from warning where user = {user.id});"
             cur.execute(sql)
             res = cur.fetchone()
+
             if res is None:
                 total = count
             else:
@@ -131,14 +132,18 @@ class Warn(commands.Cog):
 
         return
 
-    @commands.has_permissions(administrator=True)
     @slash_command(name='check_warning', description="Check warning", guild_ids=guild_ids)
     @option('user', discord.Member, description="Enter the user")
     async def check(self, ctx: ApplicationContext, user: str):
         now = datetime.datetime.now()
 
         try:
-            # if user != ctx.author and
+            if user != ctx.author and not ctx.interaction.user.guild_permissions.administrator:
+                embed = discord.Embed(title="Permission Error",
+                                      description="일반 유저는 다른 유저의 경고 히스토리를 확인할 수 없습니다.",
+                                      color=0xFF0000)
+                await ctx.respond(embed=embed)
+                return
 
             conn = pymysql.connect(host='localhost', user='root', password=db_pw, db='py', charset='utf8')
             cur = conn.cursor()
